@@ -3,8 +3,27 @@ from django.db import models
 # Create your models here.
 
 class MatchStatus(models.Model):
-    #TENEMOS QUE CREAR EL TIPO STATUS PERO SUBO ASÍ DE MOMENTO PARA SEGUIR TRABAJANDO
-    statusType = models.CharField(max_length=255)
+    #CREAMOS LAS OPCIONES DEL STATUSTYPE
+    START = 'STA'
+    BREAK = 'BRE'
+    RESUMPTION = 'RES'
+    GOAL = 'GOA'
+    END = 'END'
+    OTHER = 'OTH'
+
+    STATUS_OPTIONS = (
+        (START, 'Start'),
+        (BREAK, 'Break'),
+        (RESUMPTION, 'Resumotion'),
+        (GOAL, 'Goal'),
+        (END, 'End'),
+        (OTHER, 'Other'),
+    )
+    
+    statusType = models.CharField(
+        max_length=3,
+        choices=STATUS_OPTIONS,
+    )
     info = models.CharField(max_length=255)
     date = models.DateTimeField()
     scoreboard = models.CharField(max_length=255)

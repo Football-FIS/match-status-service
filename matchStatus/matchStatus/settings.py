@@ -75,8 +75,12 @@ WSGI_APPLICATION = 'matchStatus.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'djongo',
+        'NAME': 'match',
+        'ENFORCE_SCHEMA': False,
+        'CLIENT': {
+                'host': 'mongodb+srv://matchControl:ContraseñaSuperSegura1234.@cluster0.mrnodxn.mongodb.net/test'
+        }
     }
 }
 
