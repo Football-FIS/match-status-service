@@ -1,8 +1,12 @@
-from django.contrib import admin
-from django.urls import path
-from . import views
+from django.urls import path, include
+from rest_framework import routers
+
+from .views import MatchStatusViewSet
+
+
+router = routers.DefaultRouter()
+router.register(r'match-status', MatchStatusViewSet)
 
 urlpatterns = [
-    path('matchStatus/', views.MatchCreateApiView.as_view()),
-    path('matchStatus/<pk>', views.MacthRetrieveApiView.as_view()),
+    path('', include(router.urls)),
 ]

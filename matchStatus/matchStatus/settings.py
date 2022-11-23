@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,10 +21,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-fp=8b7sf89^vhco$ysfx%=t_(f0k5)sg3-5tgdd8j@$-vl%^*2'
+SECRET_KEY = os.environ.get('SECRET_KEY', '')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', '')
 
 ALLOWED_HOSTS = []
 
@@ -37,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'matchStatus_API',
 ]
 
 MIDDLEWARE = [
@@ -79,7 +82,7 @@ DATABASES = {
         'NAME': 'match',
         'ENFORCE_SCHEMA': False,
         'CLIENT': {
-                'host': 'mongodb+srv://matchControl:ContraseñaSuperSegura1234.@cluster0.mrnodxn.mongodb.net/test'
+                'host': os.environ.get('MONGO_URL', '')
         }
     }
 }

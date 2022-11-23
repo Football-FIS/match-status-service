@@ -1,9 +1,9 @@
-from django.db import models
+from djongo import models
+from django.utils.crypto import get_random_string
 
-# Create your models here.
 
 class MatchStatus(models.Model):
-    #CREAMOS LAS OPCIONES DEL STATUSTYPE
+    # CREAMOS LAS OPCIONES DEL STATUSTYPE
     START = 'STA'
     BREAK = 'BRE'
     RESUMPTION = 'RES'
@@ -19,8 +19,9 @@ class MatchStatus(models.Model):
         (END, 'End'),
         (OTHER, 'Other'),
     )
-    
-    statusType = models.CharField(
+
+    id = models.CharField(primary_key=True, max_length=24, default=get_random_string(length=24))
+    status_type = models.CharField(
         max_length=3,
         choices=STATUS_OPTIONS,
     )

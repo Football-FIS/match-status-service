@@ -1,0 +1,11 @@
+services:
+  web:
+    build:
+      context: matchStatus
+      target: builder
+    env_file:
+      - .env
+      - ../docker-service/.env
+    restart: always
+    ports: 
+      - '8002:8002'
