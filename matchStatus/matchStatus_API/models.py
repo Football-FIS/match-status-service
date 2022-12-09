@@ -14,7 +14,7 @@ class MatchStatus(models.Model):
     STATUS_OPTIONS = (
         (START, 'Start'),
         (BREAK, 'Break'),
-        (RESUMPTION, 'Resumotion'),
+        (RESUMPTION, 'Resumption'),
         (GOAL, 'Goal'),
         (END, 'End'),
         (OTHER, 'Other'),
@@ -25,6 +25,8 @@ class MatchStatus(models.Model):
         max_length=3,
         choices=STATUS_OPTIONS,
     )
+    #FALTA UN MATCHID, QUE TENDREMOS QUE RECOGERLO DEL MATCHSERVICE
+    #matchId = models.CharField(max_length=24)
     info = models.CharField(max_length=255)
     date = models.DateTimeField()
     scoreboard = models.CharField(max_length=255)
