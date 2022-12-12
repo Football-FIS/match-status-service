@@ -21,10 +21,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', '')
+SECRET_KEY = 'django-insecure-8*23gd&8$quu(fy6j4$aoiidfajfaklbgayowe!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', '')
+DEBUG = True
 
 ALLOWED_HOSTS = []
 
@@ -37,7 +37,6 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
     'rest_framework',
     'matchStatus_API',
     'django.contrib.staticfiles',  # required for serving swagger ui's css/js files
@@ -84,7 +83,7 @@ DATABASES = {
         'NAME': 'match',
         'ENFORCE_SCHEMA': False,
         'CLIENT': {
-                'host': os.environ.get('MONGO_URL', '')
+                'host': 'mongodb+srv://matchControl:Contrase%C3%B1aSuperSegura1234.@cluster0.mrnodxn.mongodb.net/test?retryWrites=true&w=majority'
         }
     }
 }
