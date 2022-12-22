@@ -1,0 +1,13 @@
+services:
+  match-status-service:
+    container_name: match-status-service
+    build:
+      context: matchStatus
+      target: builder
+    #environment:
+    #  - SECRET_KEY=${SECRET_KEY}
+    #  - DEBUG=${DEBUG}
+    #  - MONGO_URL=${MONGO_URL}
+    restart: always
+    ports: 
+      - '8002:8002'
