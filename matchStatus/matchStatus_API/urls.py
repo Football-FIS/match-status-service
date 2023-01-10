@@ -18,7 +18,7 @@ schema_view = get_schema_view(
 )
 
 router = routers.DefaultRouter()
-router.register(r'match-status', MatchStatusViewSet)
+router.register(r'match-status', MatchStatusViewSet, basename='MatchStatus')
 
 urlpatterns = [
     path('', include(router.urls)),
