@@ -25,8 +25,8 @@ class MatchStatus(models.Model):
         max_length=3,
         choices=STATUS_OPTIONS,
     )
-    #FALTA UN MATCHID, QUE TENDREMOS QUE RECOGERLO DEL MATCHSERVICE
-    #matchId = models.CharField(max_length=24)
+    matchId = models.CharField(max_length=24)
+    user_id = models.IntegerField()
     info = models.CharField(max_length=255)
     date = models.DateTimeField()
     scoreboard = models.CharField(max_length=255)
