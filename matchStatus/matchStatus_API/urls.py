@@ -3,7 +3,7 @@ from rest_framework import routers, permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
-from .views import MatchStatusViewSet
+from .views import MatchStatusViewSet, SendTweet
 
 
 schema_view = get_schema_view(
@@ -21,7 +21,11 @@ router = routers.DefaultRouter()
 router.register(r'match-status', MatchStatusViewSet, basename='MatchStatus')
 
 urlpatterns = [
-    path('', include(router.urls)),
+   # path('', include(router.urls)),
+   path('match_status/list', MatchStatusViewSet.as_view({'get':'list'})),
+   path('match_status/', MatchStatusViewSet.as_view({'post':'create'})),
+   path('match_status/<pk>', MatchStatusViewSet.as_view({'get':'get', 'delete':'delete', 'put':'update'})),
+   path('send_tweet', SendTweet.as_view({'post':'post'})),
    #  re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
    #  re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 
