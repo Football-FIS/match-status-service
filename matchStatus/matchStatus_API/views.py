@@ -8,6 +8,7 @@ import requests, os, json, tweepy
 
 
 MATCH_SERV_URL = "MATCH_SERV_URL"
+TEAM_SERV_URL = "TEAM_SERV_URL"
 
 #CONEXIONES TWITTER
 API_TOKEN = "6helRGOg9XHcjrC6dh2HhmHoZ"
@@ -18,6 +19,7 @@ CONSUMER_KEY_SECRET = "M90PxJXLX5AJZon3HRzfTPjuF3lwRSDeN6niLlgoK3z1y"
 
 #No tenemos que crear validate token, debido a que si llega a nuestra api, es porque debes estar logueado (match-service nos controla el acceso por team-service)
 match_backend_url = os.getenv(MATCH_SERV_URL, 'https://match-service-danaremar.cloud.okteto.net/') + 'api/v1/'
+team_backend_url = os.getenv(TEAM_SERV_URL, 'https://team-service-danaremar.cloud.okteto.net/') + 'api/v1/'
 
 def send_tweet(minuto, local, visitante, marcador, info):
 
@@ -32,8 +34,11 @@ def match_list(headers):
     # Cambiar headers['Authorization'] por el Bearer xxxxx para probar
     return requests.get(match_backend_url + 'match/list', headers={'Authorization': headers['Authorization']})
 
-def get_match_from_request(request):
+def get_user_from_request(request):
     return json.loads(request.content)
+
+def validate_token(headers):
+    return requests.get(team_backend_url + 'validate-token', headers={'Authorization': headers['Authorization']})
 
 
 class MatchStatusViewSet(viewsets.ModelViewSet):
@@ -43,24 +48,31 @@ class MatchStatusViewSet(viewsets.ModelViewSet):
 
     def list(self, request):
 
-        queryset = MatchStatus.objects.all()
+        # check permissions
+        bt = validate_token(request.headers)
+        if(bt.status_code!=200):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
+         # list only from user
+        user = get_user_from_request(bt)
+        queryset = MatchStatus.objects.filter(user_id=user['id'])
 
-        # AUTORIZACIÓN
-
+        # AUTENTICACION A TRAVÉS DE MATCH
         # # extract match list
         # bt = match_list(request.headers)
         # if(bt.status_code!=200):
         #     return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         # # get match list info
-        # match = get_match_from_request(bt)
+        # match = get_user_from_request(bt)
 
         # try:
         #     # list all matchesStatus with user id coincidence
         #     queryset = MatchStatus.objects.filter(user_id=match['user_id'])
         # except:
         #     return Response(status=status.HTTP_204_NO_CONTENT)
-        
+
+
 
         serializer_class = MatchStatusSerializer(queryset, many=True)
         return Response(serializer_class.data)
