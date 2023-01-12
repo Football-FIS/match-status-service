@@ -4,13 +4,28 @@ from .models import MatchStatus
 from .serializers import MatchStatusSerializer
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-import requests, os, json
+import requests, os, json, tweepy
 
 
 MATCH_SERV_URL = "MATCH_SERV_URL"
 
+#CONEXIONES TWITTER
+API_TOKEN = "6helRGOg9XHcjrC6dh2HhmHoZ"
+API_TOKEN_SECRET = "U2NuFxLjTnsvNpKAqoQ7lkcfxgnF5ahjrP3nfSdYpcp4ABWjaq"
+CONSUMER_KEY = "214587226-t4Ti19gvKp26QqYKzsNRaoqvvAObJaJSHxX8cqLP"
+CONSUMER_KEY_SECRET = "M90PxJXLX5AJZon3HRzfTPjuF3lwRSDeN6niLlgoK3z1y"
+
+
 #No tenemos que crear validate token, debido a que si llega a nuestra api, es porque debes estar logueado (match-service nos controla el acceso por team-service)
 match_backend_url = os.getenv(MATCH_SERV_URL, 'https://match-service-danaremar.cloud.okteto.net/') + 'api/v1/'
+
+def send_tweet(minuto, equipos, marcador, info):
+
+    auth = tweepy.OAuthHandler(API_TOKEN, API_TOKEN_SECRET)
+    auth.set_access_token(CONSUMER_KEY, CONSUMER_KEY_SECRET)
+    api = tweepy.API(auth)
+    # Publica un tweet. Suponemos minuto, equipos, marcador, e info provenientes del tipo matchStatus
+    api.update_status(str(minuto) + "' | " + str(equipos[0]) + ' ' + str(marcador) + ' ' + str(equipos[1]) + '\n' + str(info))
 
 
 def match_list(headers):
