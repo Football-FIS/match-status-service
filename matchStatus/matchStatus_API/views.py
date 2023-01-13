@@ -17,7 +17,6 @@ CONSUMER_KEY = "214587226-t4Ti19gvKp26QqYKzsNRaoqvvAObJaJSHxX8cqLP"
 CONSUMER_KEY_SECRET = "M90PxJXLX5AJZon3HRzfTPjuF3lwRSDeN6niLlgoK3z1y"
 
 
-#No tenemos que crear validate token, debido a que si llega a nuestra api, es porque debes estar logueado (match-service nos controla el acceso por team-service)
 match_backend_url = os.getenv(MATCH_SERV_URL, 'https://match-service-danaremar.cloud.okteto.net/') + 'api/v1/'
 team_backend_url = os.getenv(TEAM_SERV_URL, 'https://team-service-danaremar.cloud.okteto.net/') + 'api/v1/'
 
@@ -81,8 +80,17 @@ class MatchStatusViewSet(viewsets.ModelViewSet):
     # create
     def create(self, request):
 
+        # check permissions
+        bt = validate_token(request.headers)
+        if(bt.status_code!=200):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
         # object to write
         matchStatus = request.data
+
+        # set user id from team logged
+        user = get_user_from_request(bt)
+        matchStatus['user_id'] = user['id']
 
         serializer = MatchStatusSerializer(data=matchStatus)
         if serializer.is_valid():
@@ -93,8 +101,36 @@ class MatchStatusViewSet(viewsets.ModelViewSet):
 
     
     # get
-    def get(self, request, pk=None):
+    def get(self, request, pk):
+        
+        # AUTHENTICATION IN GET (?)
+        # check permissions
+        # bt = validate_token(request.headers)
+        # if(bt.status_code!=200):
+        #     return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        # Select by pk
         matchStatus = get_object_or_404(MatchStatus, pk=pk)
+
+        serializer_output = MatchStatusSerializer(matchStatus)
+        return Response(serializer_output.data)
+
+    
+    # get by match id
+    def getMatchID(self, request, pk=None):
+        
+        # AUTHENTICATION IN GET (?)
+        # check permissions
+        # bt = validate_token(request.headers)
+        # if(bt.status_code!=200):
+        #     return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        # Filter by match id
+        try:
+            matchStatus = MatchStatus.objects.filter(matchId=pk)[0]
+        except:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
         serializer_output = MatchStatusSerializer(matchStatus)
         return Response(serializer_output.data)
 
@@ -102,12 +138,24 @@ class MatchStatusViewSet(viewsets.ModelViewSet):
     # update
     def update(self, request, pk):
 
+        # check permissions
+        bt = validate_token(request.headers)
+        if(bt.status_code!=200):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
         # object to write
         new_match_status = request.data
 
+        # set user id from team logged
+        user = get_user_from_request(bt)
+        new_match_status['user_id'] = user['id']
+
         # get saved matchStatus
-        # in swagger you must insert manually id:xxxx
         matchStatus = get_object_or_404(MatchStatus, id=pk)
+
+        # check user id is same as user id want to update
+        if(matchStatus.user_id != new_match_status['user_id']):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         # update if valid
         serializer = MatchStatusSerializer(data=new_match_status)
@@ -117,13 +165,25 @@ class MatchStatusViewSet(viewsets.ModelViewSet):
 
 
     # delete
-    def delete(self, pk):
+    def delete(self, request, pk):
+
+        # check permissions
+        bt = validate_token(request.headers)
+        if(bt.status_code!=200):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        # set user id from team logged
+        user = get_user_from_request(bt)
 
         # get saved match status
-        match = get_object_or_404(MatchStatus, pk=pk)
+        matchStatus = get_object_or_404(MatchStatus, id=pk)
+
+        # check user id is same as user that want to delete it
+        if(matchStatus.user_id != user['id']):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
         
         # delete
-        match.delete()
+        matchStatus.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
