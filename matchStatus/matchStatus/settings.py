@@ -28,6 +28,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:4200',
+    'http://localhost',
+    'https://localhost',
+    'https://frontend-danaremar.cloud.okteto.net'
+]
+
 
 # Application definition
 
@@ -41,9 +48,11 @@ INSTALLED_APPS = [
     'matchStatus_API',
     'django.contrib.staticfiles',  # required for serving swagger ui's css/js files
     'drf_yasg',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
