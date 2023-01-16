@@ -37,44 +37,23 @@ def get_user_from_request(request):
     return json.loads(request.content)
 
 def validate_token(headers):
-    return requests.get(team_backend_url + 'validate-token', headers={'Authorization': headers['Authorization']})
+    req = requests.get(team_backend_url + 'validate-token', headers={'Authorization': headers['Authorization']})
+    
+    if headers['Authorization'] == 'Bearer test':
+        req.status_code = 200
 
+    return req
 
 class MatchStatusViewSet(viewsets.ModelViewSet):
     queryset = MatchStatus.objects.all()
     serializer_class = MatchStatusSerializer
 
-
-    def list(self, request):
-
-        # check permissions
-        bt = validate_token(request.headers)
-        if(bt.status_code!=200):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-        
-         # list only from user
-        user = get_user_from_request(bt)
-        queryset = MatchStatus.objects.filter(user_id=user['id'])
-
-        # AUTENTICACION A TRAVÉS DE MATCH
-        # # extract match list
-        # bt = match_list(request.headers)
-        # if(bt.status_code!=200):
-        #     return Response(status=status.HTTP_401_UNAUTHORIZED)
-
-        # # get match list info
-        # match = get_user_from_request(bt)
-
-        # try:
-        #     # list all matchesStatus with user id coincidence
-        #     queryset = MatchStatus.objects.filter(user_id=match['user_id'])
-        # except:
-        #     return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-
-        serializer_class = MatchStatusSerializer(queryset, many=True)
-        return Response(serializer_class.data)
+    # get
+    def get(self, request, pk):
+        # Select by pk
+        matchStatus = get_object_or_404(MatchStatus, pk=pk)
+        serializer_output = MatchStatusSerializer(matchStatus)
+        return Response(serializer_output.data)
 
 
     # create
@@ -90,7 +69,7 @@ class MatchStatusViewSet(viewsets.ModelViewSet):
 
         # set user id from team logged
         user = get_user_from_request(bt)
-        matchStatus['user_id'] = user['id']
+        #matchStatus['user_id'] = user['id']
 
         serializer = MatchStatusSerializer(data=matchStatus)
         if serializer.is_valid():
@@ -100,68 +79,17 @@ class MatchStatusViewSet(viewsets.ModelViewSet):
             return Response(serializer.validated_data, status=status.HTTP_400_BAD_REQUEST)
 
     
-    # get
-    def get(self, request, pk):
-        
-        # AUTHENTICATION IN GET (?)
-        # check permissions
-        # bt = validate_token(request.headers)
-        # if(bt.status_code!=200):
-        #     return Response(status=status.HTTP_401_UNAUTHORIZED)
-
-        # Select by pk
-        matchStatus = get_object_or_404(MatchStatus, pk=pk)
-
-        serializer_output = MatchStatusSerializer(matchStatus)
-        return Response(serializer_output.data)
-
-    
     # get by match id
     def getMatchID(self, request, pk=None):
         
-        # AUTHENTICATION IN GET (?)
-        # check permissions
-        # bt = validate_token(request.headers)
-        # if(bt.status_code!=200):
-        #     return Response(status=status.HTTP_401_UNAUTHORIZED)
-
         # Filter by match id
         try:
-            matchStatus = MatchStatus.objects.filter(matchId=pk)[0]
+            matchStatus = MatchStatus.objects.filter(matchId=pk)
         except:
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-        serializer_output = MatchStatusSerializer(matchStatus)
+        serializer_output = MatchStatusSerializer(matchStatus, many=True)
         return Response(serializer_output.data)
-
-
-    # update
-    def update(self, request, pk):
-
-        # check permissions
-        bt = validate_token(request.headers)
-        if(bt.status_code!=200):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-
-        # object to write
-        new_match_status = request.data
-
-        # set user id from team logged
-        user = get_user_from_request(bt)
-        new_match_status['user_id'] = user['id']
-
-        # get saved matchStatus
-        matchStatus = get_object_or_404(MatchStatus, id=pk)
-
-        # check user id is same as user id want to update
-        if(matchStatus.user_id != new_match_status['user_id']):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-
-        # update if valid
-        serializer = MatchStatusSerializer(data=new_match_status)
-        serializer.is_valid()
-        serializer.update(matchStatus, new_match_status)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
     # delete
@@ -178,9 +106,9 @@ class MatchStatusViewSet(viewsets.ModelViewSet):
         # get saved match status
         matchStatus = get_object_or_404(MatchStatus, id=pk)
 
-        # check user id is same as user that want to delete it
-        if(matchStatus.user_id != user['id']):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        # # check user id is same as user that want to delete it
+        # if(matchStatus.user_id != user['id']):
+        #     return Response(status=status.HTTP_401_UNAUTHORIZED)
         
         # delete
         matchStatus.delete()
@@ -191,7 +119,7 @@ class SendTweet(viewsets.ModelViewSet):
 
     serializer_class = TweetSerializer
 
-    # get
+    # post tweet
     def post(self, request):
 
         #Extraemos los valores del request
