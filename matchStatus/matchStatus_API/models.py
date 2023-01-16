@@ -26,11 +26,9 @@ class MatchStatus(models.Model):
         choices=STATUS_OPTIONS,
     )
     matchId = models.CharField(max_length=24)
-    user_id = models.IntegerField()
     info = models.CharField(max_length=255)
     date = models.DateTimeField()
     scoreboard = models.CharField(max_length=255)
-    uidPlayer = models.CharField(max_length=255)
 
 class Tweet(models.Model):
     id =  models.CharField(primary_key=True, max_length=24, default=get_random_string(length=24))

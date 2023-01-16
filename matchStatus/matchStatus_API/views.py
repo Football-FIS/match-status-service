@@ -4,6 +4,7 @@ from .models import MatchStatus
 from .serializers import MatchStatusSerializer, TweetSerializer
 from rest_framework import viewsets, status
 from rest_framework.response import Response
+from datetime import datetime
 import requests, os, json, tweepy
 
 
@@ -44,6 +45,19 @@ def validate_token(headers):
 
     return req
 
+def obtain_opponent(headers, id):
+    req = requests.get(match_backend_url + str(id), headers={'Authorization': headers['Authorization']})
+    res = json.load(req.content)
+    return res['opponent']
+
+def obtain_local(headers, id):
+    url = team_backend_url + 'team/' + str(id) + '/'
+    print(url)
+    req = requests.get(team_backend_url + 'team/' + str(id) + '/', headers={'Authorization': headers['Authorization']})
+    res = json.load(req.content)
+    return res['name']
+
+
 class MatchStatusViewSet(viewsets.ModelViewSet):
     queryset = MatchStatus.objects.all()
     serializer_class = MatchStatusSerializer
@@ -69,11 +83,17 @@ class MatchStatusViewSet(viewsets.ModelViewSet):
 
         # set user id from team logged
         user = get_user_from_request(bt)
-        #matchStatus['user_id'] = user['id']
+
+        # to send tweet, we need, formatted time, local and opponent
+        # formatted_time = matchStatus['date'][11:16]
+        # local = obtain_local(request.headers, user['id'])
+        # # opponent = obtain_opponent(request.headers, matchStatus['matchId'])
+        # opponent = 'Beti'
 
         serializer = MatchStatusSerializer(data=matchStatus)
         if serializer.is_valid():
             serializer.save()
+            # send_tweet(formatted_time, local, opponent, matchStatus['scoreboard'], matchStatus['info'])
             return Response(serializer.validated_data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.validated_data, status=status.HTTP_400_BAD_REQUEST)
