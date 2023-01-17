@@ -74,15 +74,15 @@ class MatchStatusViewSet(viewsets.ModelViewSet):
     def create(self, request):
 
         # check permissions
-        bt = validate_token(request.headers)
-        if(bt.status_code!=200):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        # bt = validate_token(request.headers)
+        # if(bt.status_code!=200):
+        #     return Response(status=status.HTTP_401_UNAUTHORIZED)
         
         # object to write
         matchStatus = request.data
 
         # set user id from team logged
-        user = get_user_from_request(bt)
+        # user = get_user_from_request(bt)
 
         # to send tweet, we need, formatted time, local and opponent
         # formatted_time = matchStatus['date'][11:16]
