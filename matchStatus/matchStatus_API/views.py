@@ -90,6 +90,8 @@ class MatchStatusViewSet(viewsets.ModelViewSet):
         # # opponent = obtain_opponent(request.headers, matchStatus['matchId'])
         # opponent = 'Beti'
 
+        matchStatus['date'] = datetime.now()
+
         serializer = MatchStatusSerializer(data=matchStatus)
         if serializer.is_valid():
             serializer.save()
