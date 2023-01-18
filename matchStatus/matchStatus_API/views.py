@@ -46,15 +46,16 @@ def validate_token(headers):
     return req
 
 def obtain_opponent(headers, id):
-    req = requests.get(match_backend_url + str(id), headers={'Authorization': headers['Authorization']})
-    res = json.load(req.content)
+    url = match_backend_url + 'match/url/' + str(id)
+    print(url)
+    req = requests.get(url, headers={'Authorization': headers['Authorization']})
+    res = json.loads(req.content)
     return res['opponent']
 
 def obtain_local(headers, id):
     url = team_backend_url + 'team/' + str(id) + '/'
-    print(url)
-    req = requests.get(team_backend_url + 'team/' + str(id) + '/', headers={'Authorization': headers['Authorization']})
-    res = json.load(req.content)
+    req = requests.get(url, headers={'Authorization': headers['Authorization']})
+    res = json.loads(req.content)
     return res['name']
 
 
@@ -74,28 +75,28 @@ class MatchStatusViewSet(viewsets.ModelViewSet):
     def create(self, request):
 
         # check permissions
-        # bt = validate_token(request.headers)
-        # if(bt.status_code!=200):
-        #     return Response(status=status.HTTP_401_UNAUTHORIZED)
+        bt = validate_token(request.headers)
+        if(bt.status_code!=200):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
         
         # object to write
         matchStatus = request.data
 
         # set user id from team logged
-        # user = get_user_from_request(bt)
+        user = get_user_from_request(bt)
 
         # to send tweet, we need, formatted time, local and opponent
-        # formatted_time = matchStatus['date'][11:16]
-        # local = obtain_local(request.headers, user['id'])
-        # # opponent = obtain_opponent(request.headers, matchStatus['matchId'])
-        # opponent = 'Beti'
+        formatted_time = matchStatus['date'][11:16]
+        local = obtain_local(request.headers, user['id'])
+        opponent = obtain_opponent(request.headers, matchStatus['matchId'])
 
         matchStatus['date'] = datetime.now()
 
         serializer = MatchStatusSerializer(data=matchStatus)
         if serializer.is_valid():
             serializer.save()
-            # send_tweet(formatted_time, local, opponent, matchStatus['scoreboard'], matchStatus['info'])
+            # be careful please, i used to have a life until i create this function for my teammates :O
+            send_tweet(formatted_time, local, opponent, matchStatus['scoreboard'], matchStatus['info'])
             return Response(serializer.validated_data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.validated_data, status=status.HTTP_400_BAD_REQUEST)
@@ -122,15 +123,8 @@ class MatchStatusViewSet(viewsets.ModelViewSet):
         if(bt.status_code!=200):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-        # set user id from team logged
-        user = get_user_from_request(bt)
-
         # get saved match status
         matchStatus = get_object_or_404(MatchStatus, id=pk)
-
-        # # check user id is same as user that want to delete it
-        # if(matchStatus.user_id != user['id']):
-        #     return Response(status=status.HTTP_401_UNAUTHORIZED)
         
         # delete
         matchStatus.delete()
