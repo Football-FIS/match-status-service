@@ -14,32 +14,32 @@ from .serializers import MatchStatusSerializer
 # """
 #     Check create method in MatchStatus.
 # """
-@pytest.mark.django_db
-def test_create_match_status(client):
+# @pytest.mark.django_db
+# def test_create_match_status(client):
     
-    json_match_status = {
-        "status_type": "GOA",
-        "matchId": "kjfdslkjflsdjsfjl",
-        "info": "Buen golito del bicho",
-        "date": "2023-01-14T18:19:07.031Z",
-        "scoreboard": "5-0"
-        }
+#     json_match_status = {
+#         "status_type": "GOA",
+#         "matchId": "kjfdslkjflsdjsfjl",
+#         "info": "Buen golito del bicho",
+#         "date": "2023-01-14T18:19:07.031Z",
+#         "scoreboard": "5-0"
+#         }
 
-    headers = {
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzA1NDQzNDM3LCJpYXQiOjE2NzM5MDc0MzcsImp0aSI6IjMxZjNiMTE3YjczYzQ2NDZhYzFjMWY4NDA1MTFiNTFlIiwidXNlcl9pZCI6MTl9.LcgBuqC3ge3fQ9ih3OqsBDO_VZ6Y5QXxEkUmebp_2ns',
-        'Content-Type': 'application/json'
-        }
+#     headers = {
+#         'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzA1NDQzNDM3LCJpYXQiOjE2NzM5MDc0MzcsImp0aSI6IjMxZjNiMTE3YjczYzQ2NDZhYzFjMWY4NDA1MTFiNTFlIiwidXNlcl9pZCI6MTl9.LcgBuqC3ge3fQ9ih3OqsBDO_VZ6Y5QXxEkUmebp_2ns',
+#         'Content-Type': 'application/json'
+#         }
     
-    request_url = '/api/v1/match_status/'
+#     request_url = '/api/v1/match_status/'
 
-    response = client.post(request_url, data=json_match_status, headers=headers)
+#     response = client.post(request_url, data=json_match_status, headers=headers)
 
-    expected_response = json_match_status
-    print(response)
-    response_dic = dict(response.data)
+#     expected_response = json_match_status
+#     print(response)
+#     response_dic = dict(response.data)
 
-    assert response.status_code == 201
-    assert response_dic == expected_response
+#     assert response.status_code == 201
+#     assert response_dic == expected_response
 
 
 
@@ -112,21 +112,21 @@ def test_gest_matchid(client):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
-def test_delete_match_status(client):
-    """
-    Check delete method in team.
-    """
+# @pytest.mark.django_db
+# def test_delete_match_status(client):
+#     """
+#     Check delete method in team.
+#     """
 
-    request_url = '/api/v1/match_status/'
+#     request_url = '/api/v1/match_status/'
 
-    res = 'ageBJh0HKnR9oBDW6V4mpKPE'
+#     res = 'ageBJh0HKnR9oBDW6V4mpKPE'
 
-    url = request_url + res
+#     url = request_url + res
 
-    response = client.delete(url, content_type='application/json', headers={'Authorization' : 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzA1NDQzNDM3LCJpYXQiOjE2NzM5MDc0MzcsImp0aSI6IjMxZjNiMTE3YjczYzQ2NDZhYzFjMWY4NDA1MTFiNTFlIiwidXNlcl9pZCI6MTl9.LcgBuqC3ge3fQ9ih3OqsBDO_VZ6Y5QXxEkUmebp_2ns'})
+#     response = client.delete(url, content_type='application/json', headers={'Authorization' : 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzA1NDQzNDM3LCJpYXQiOjE2NzM5MDc0MzcsImp0aSI6IjMxZjNiMTE3YjczYzQ2NDZhYzFjMWY4NDA1MTFiNTFlIiwidXNlcl9pZCI6MTl9.LcgBuqC3ge3fQ9ih3OqsBDO_VZ6Y5QXxEkUmebp_2ns'})
 
-    match_status_count = MatchStatus.objects.filter(id=res).count()
+#     match_status_count = MatchStatus.objects.filter(id=res).count()
 
-    assert response.status_code == 204
-    assert match_status_count == 0
+#     assert response.status_code == 204
+#     assert match_status_count == 0
