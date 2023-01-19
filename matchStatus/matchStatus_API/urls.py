@@ -22,9 +22,8 @@ router.register(r'match-status', MatchStatusViewSet, basename='MatchStatus')
 
 urlpatterns = [
    # path('', include(router.urls)),
-   path('match_status/list', MatchStatusViewSet.as_view({'get':'list'})),
    path('match_status/', MatchStatusViewSet.as_view({'post':'create'})),
-   path('match_status/<pk>', MatchStatusViewSet.as_view({'get':'get', 'delete':'delete', 'put':'update'})),
+   path('match_status/<pk>', MatchStatusViewSet.as_view({'get':'get', 'delete':'delete'})),
    path('match_status/matchid/<pk>', MatchStatusViewSet.as_view({'get':'getMatchID'})),
    path('send_tweet', SendTweet.as_view({'post':'post'})),
    #  re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
