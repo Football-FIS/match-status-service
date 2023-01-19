@@ -1,7 +1,7 @@
 # MatchStatus service
 
 ## Introducción
-Este microservicio es parte de la aplicación [Footmatch](https://github.com/orgs/Football-FIS/repositories)., proyecto para la asignatura "*Fundamentos de Ingeniería Software para Cloud*" del "*Máster en Ingeniería del Software: Cloud, Datos y Gestión TI*" en la *Universidad de Sevilla*.
+Este microservicio es parte de la aplicación [Footmatch](https://github.com/orgs/Football-FIS/repositories), proyecto para la asignatura "*Fundamentos de Ingeniería Software para Cloud*" del "*Máster en Ingeniería del Software: Cloud, Datos y Gestión TI*" en la *Universidad de Sevilla*.
 
 La función de este microservicio es la creación de eventos asociados a un partido. Además, proveerá al microservicio "*match-service*" del marcador del partido y diferentes eventos, con el tiempo en que ocurrieron.
 
@@ -22,10 +22,18 @@ Para el desarrollo de este microservicio se han usado las siguientes tecnología
 
 
 ## APIs relacionadas
-Se ha usado la API Rest **Tweepy** para la publicación de tweets con los estados que se van generando a lo largo de un partido. Este tweet mostrará el marcador, los equipos que estan jugando, un campo de descripcion del evento y el minuto donde ocurre ese evento.
+Se ha usado la API Rest **Tweepy** para la publicación de tweets con los estados que se van generando a lo largo de un partido. Este tweet mostrará el marcador, los equipos que estan jugando, un campo de descripcion del evento y la hora donde ocurre ese evento.
+Este envío de tweets se hará siempre que se cree un estado para cualquier partido, y obtendrá la información del mismo.
+
+Un ejemplo sería: 
+
+09:24' | Mures CF 1-2 UD Pilas
+Final del partido
+
+Para poder consultar la creación de dicho tweet, debemos irnos hasta el perfil de Diego Monsalves Vázquez (@demvazquez), destacar que este perfil es privado, y cuando se requiera el uso para poder puntuar este proyecto, deberán avisar vía mail a diegomonsalvesvazquez@gmail.com o por teams para poder abrirlo, y así ser puntuado.
 
 ## Requisitos de proyecto
-Tanto la aplicación cumplen los requisitos para una **calificación de 7+**. A continuación se listarán los requisitos, así como las distintas evidencias:
+Comenzamos aspirando a una calificación de 9, pero por falta de tiempo, pese a tener algunos requisitos de 9, tanto la aplicación cumplen los requisitos para una **calificación de 7+**. A continuación se listarán los requisitos, así como las distintas evidencias:
 
 ### Microservicio avanzado
 
@@ -33,6 +41,8 @@ Tanto la aplicación cumplen los requisitos para una **calificación de 7+**. A 
  - **Caché frontend**: se implementa una caché de tipo localStorage para listar "mis partidos", para agilizar la carga de esta. Puede apreciarse en las funciones "*getMyMatchesInCache*" y " *setMyMatchesInCache*" dentro de los ficheros [match.service.ts](https://github.com/Football-FIS/footmatch-frontend/blob/develop/src/app/services/matchStatus.service.ts) y [my-matches.component.ts](https://github.com/Football-FIS/footmatch-frontend/blob/develop/src/app/my-matches/match.component.ts).
  - **Consumir API externa**: se consume la API Rest Tweepy. Puede apreciarse en la función "*post*" de *SendTweet* del fichero [views.py](https://github.com/Football-FIS/match-status-service/blob/main/matchStatus/matchStatus_API/views.py).
  - **Autenticación JWT**: permite realizar operaciones en función de los permisos del usuario y de si los partidos son de su propiedad. Se redirecciona la cabecera "*Bearer*" al microservicio "*team-service*". Puede apreciarse en la función "*validate_token*" del fichero [views.py](https://github.com/Football-FIS/match-status-service/blob/main/matchStatus/matchStatus_API/views.py).
+ - **Tests backend**: estos comenzaron a realizarse, pero por falta de tiempo tuvieron que quedarse en 'stand by'. Pese a ello se adjunta 1 funcional en tests.py.
+ - **Git flow**: pese a la escasez de tests, se implementa el recorrido de GitFlow, visual desde la pestaña de [Actions](https://github.com/Football-FIS/match-status-service/actions) en GitHub.
 
 
 ### Aplicación basada en microservicios avanzados
@@ -43,9 +53,10 @@ Tanto la aplicación cumplen los requisitos para una **calificación de 7+**. A 
 
 ### Otros requisitos
 
- - 3 pruebas de componente
  - Determinar el coste de cada plan del customer agreement
  - API Rest documentado con Swagger
+ - 4 características de microservicio avanzado
+ - 3 características de aplicación basada en microservicios avanzados
 
 
 ## Lanzar aplicación
