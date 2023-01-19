@@ -41,8 +41,8 @@ Comenzamos aspirando a una calificación de 9, pero por falta de tiempo, pese a 
  - **Caché frontend**: se implementa una caché de tipo localStorage para listar "mis partidos", para agilizar la carga de esta. Puede apreciarse en las funciones "*getMyMatchesInCache*" y " *setMyMatchesInCache*" dentro de los ficheros [match.service.ts](https://github.com/Football-FIS/footmatch-frontend/blob/develop/src/app/services/matchStatus.service.ts) y [my-matches.component.ts](https://github.com/Football-FIS/footmatch-frontend/blob/develop/src/app/my-matches/match.component.ts).
  - **Consumir API externa**: se consume la API Rest Tweepy. Puede apreciarse en la función "*post*" de *SendTweet* del fichero [views.py](https://github.com/Football-FIS/match-status-service/blob/main/matchStatus/matchStatus_API/views.py).
  - **Autenticación JWT**: permite realizar operaciones en función de los permisos del usuario y de si los partidos son de su propiedad. Se redirecciona la cabecera "*Bearer*" al microservicio "*team-service*". Puede apreciarse en la función "*validate_token*" del fichero [views.py](https://github.com/Football-FIS/match-status-service/blob/main/matchStatus/matchStatus_API/views.py).
- - **Tests backend**: estos comenzaron a realizarse, pero por falta de tiempo tuvieron que quedarse en 'stand by'. Pese a ello se adjunta 1 funcional en tests.py.
- - **Git flow**: pese a la escasez de tests, se implementa el recorrido de GitFlow, visual desde la pestaña de [Actions](https://github.com/Football-FIS/match-status-service/actions) en GitHub.
+ - **Tests backend**: se adjuntan hasta 8 tests dentro de tests.py. Donde se hace referencia a las funcionalidades menos triviales, así como la conexión con mongo.
+ - **Git flow**: se implementa el recorrido de GitFlow, visual desde la pestaña de [Actions](https://github.com/Football-FIS/match-status-service/actions) en GitHub.
 
 
 ### Aplicación basada en microservicios avanzados
