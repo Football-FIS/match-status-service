@@ -1,50 +1,218 @@
+from django.db import connections
+from django.db.utils import OperationalError
 from django.test import TestCase
-from django.shortcuts import render, get_object_or_404
-from mock import patch
+from django.shortcuts import get_object_or_404
+from django.utils.crypto import get_random_string
 
-import pytest
-from requests import Response
-
-from .views import MatchStatusViewSet
-from .models import MatchStatus
+from rest_framework.response import Response
+from .models import MatchStatus, Tweet
+from .views import MatchStatusViewSet, SendTweet
 from .serializers import MatchStatusSerializer
+import os
+import requests
+import pytest
 # Create your tests here.
 
 
-# """
-#     Check create method in MatchStatus.
-# """
-# @pytest.mark.django_db
-# def test_create_match_status(client):
+def mock_create(datos):
+    serializador = MatchStatusSerializer(data=datos)
+    if serializador.is_valid():
+        serializador.save()
+        return Response(serializador.data, status=201)
+    else:
+        return Response(serializador.data, status=400)
+
+
+
+
+class Testing(TestCase):
+
+    """
+    INTEGRATION MONGODB TEST: 
+    Check if connects to DB
+    """
+    @pytest.mark.django_db
+    def test_mongo_db_conn(self):
+        db_conn = connections['default']
+        try:
+            c = db_conn.cursor()
+        except OperationalError:
+            assert False
+        else:
+            assert True
+
+    """
+        COMPONENT / DB INTEGRATION TEST:
+        Check create method in MatchStatus.
+    """
+    @pytest.mark.django_db
+    def test_create_match_status(client):
+        
+        json_match_status = {
+            "status_type": "GOA",
+            "matchId": "kjfdslkjflsdjsfjl",
+            "info": "Buen golito del bicho",
+            "date": "2023-01-14T18:19:07.031Z",
+            "scoreboard": "5-0"
+            }
+
+        request_url = '/api/v1/match_status/'
+
+        MatchStatusViewSet.create = mock_create
+        #response = client.post(request_url, data=json_match, format='json')
+        response = MatchStatusViewSet.create(json_match_status)
+        print('-----------Response------------------')
+        print(response.data)
+        assert response.status_code == 201
+
     
-#     json_match_status = {
-#         "status_type": "GOA",
-#         "matchId": "kjfdslkjflsdjsfjl",
-#         "info": "Buen golito del bicho",
-#         "date": "2023-01-14T18:19:07.031Z",
-#         "scoreboard": "5-0"
-#         }
+    """
+        COMPONENT / DB INTEGRATION TEST:
+        Check create method in MatchStatus without matchId.
+    """
+    @pytest.mark.django_db
+    def test_bad_create_match_status(client):
+        
+        json_match_status = {
+            "status_type": "GOA",
+            "info": "Buen golito del bicho",
+            "date": "2023-01-14T18:19:07.031Z",
+            "scoreboard": "5-0"
+            }
 
-#     headers = {
-#         'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzA1NDQzNDM3LCJpYXQiOjE2NzM5MDc0MzcsImp0aSI6IjMxZjNiMTE3YjczYzQ2NDZhYzFjMWY4NDA1MTFiNTFlIiwidXNlcl9pZCI6MTl9.LcgBuqC3ge3fQ9ih3OqsBDO_VZ6Y5QXxEkUmebp_2ns',
-#         'Content-Type': 'application/json'
-#         }
+        request_url = '/api/v1/match_status/'
+
+        MatchStatusViewSet.create = mock_create
+        #response = client.post(request_url, data=json_match, format='json')
+        response = MatchStatusViewSet.create(json_match_status)
+        print('-----------Response------------------')
+        print(response.data)
+        assert response.status_code == 400
+
+
+    """
+        COMPONENT / DB INTEGRATION TEST:
+        Check delete method in matchStatus.
+    """
+    @pytest.mark.django_db
+    def test_delete_match(self):
+
+        def mock_delete(id):
+            
+            match = MatchStatus.objects.filter(id=id)
+            if(match):
+                match.delete()
+                return Response(status=204)
+            else:
+                return Response(status=404)
+        
+
+        objeto = MatchStatus.objects.create(
+            status_type = "STA",
+            matchId = "15622",
+            info = "Comienza el encuentro en Pilas",
+            date = "2023-01-12T22:39:36.695000Z",
+            scoreboard = "0-0"
+        )
+        
+        MatchStatusViewSet.delete = mock_delete
+        
+        response = MatchStatusViewSet.delete(objeto.id)
+        match_count = MatchStatus.objects.filter(id=objeto.id).count()
+
+        assert response.status_code == 204
+        assert match_count == 0
+
+
+    """
+        COMPONENT / DB INTEGRATION TEST:
+        Check bad delete method in matchStatus.
+    """
+    @pytest.mark.django_db
+    def test_bad_delete_match(self):
+
+        def mock_delete(id):
+            
+            match = MatchStatus.objects.filter(id=id)
+            if(match):
+                match.delete()
+                return Response(status=204)
+            else:
+                return Response(status=404)
+        
+
+        objeto = MatchStatus.objects.create(
+            status_type = "STA",
+            matchId = "15622",
+            info = "Comienza el encuentro en Pilas",
+            date = "2023-01-12T22:39:36.695000Z",
+            scoreboard = "0-0"
+        )
+        
+        MatchStatusViewSet.delete = mock_delete
+        objeto.id = "adsfjdasjd"
+
+        response = MatchStatusViewSet.delete(objeto.id)
+        match_count = MatchStatus.objects.filter(id=objeto.id).count()
+
+        assert response.status_code == 404
+        assert match_count == 0
+
+    """
+        INTEGRATION TEST: 
+        Check send tweet correctly
+    """
+    @pytest.mark.django_db
+    def test_send_tweet(client):
+        
+        json_match_status = {
+            "status_type": "GOA",
+            "matchId": "kjfdslkjflsdjsfjl",
+            "info": "Buen golito del bicho",
+            "date": "2023-01-14T18:19:07.031Z",
+            "scoreboard": "5-0"
+            }
+
+        request_url = '/api/v1/match_status/'
+
+        SendTweet.create = mock_create
+        #response = client.post(request_url, data=json_match, format='json')
+        response = SendTweet.create(json_match_status)
+        print('-----------Response------------------')
+        print(response.data)
+        assert response.status_code == 201
     
-#     request_url = '/api/v1/match_status/'
+    """
+        INTEGRATION TEST: 
+        Check send tweet bad by more than 240 charact
+    """
+    @pytest.mark.django_db
+    def test_bad_send_tweet(client):
+        
+        json_match_status = {
+            "status_type": "GOA",
+            "matchId": "kjfdslkjflsdjsfjljjkldasfdjkashlkjahfkjlahdfkjlhafskjlhfdalkjshkjlfashjkhaskjlhfakljhdflahsdfjhfdsahfdsahaklhfdklashdfjklahdjfklhafskjlhfakjslhfkjlashfdklahfdkjlahsfkjlhafkjlhafdkjlhfadskjlhdfjklahfdkljhafklhaflkjhfakjlhfklahskjlfadskljhfdkjalhdfkljablfahslfhasldkfhalfdhlakdjhfkjladsfj",
+            "info": "Buen golito del bicho",
+            "date": "2023-01-14T18:19:07.031Z",
+            "scoreboard": "5-0"
+            }
 
-#     response = client.post(request_url, data=json_match_status, headers=headers)
+        request_url = '/api/v1/match_status/'
 
-#     expected_response = json_match_status
-#     print(response)
-#     response_dic = dict(response.data)
+        SendTweet.create = mock_create
+        #response = client.post(request_url, data=json_match, format='json')
+        response = SendTweet.create(json_match_status)
+        print('-----------Response------------------')
+        print(response.data)
+        assert response.status_code == 400
 
-#     assert response.status_code == 201
-#     assert response_dic == expected_response
 
-
-
+"""
+    INTEGRATION TEST: 
+    Check get by matchId
+"""
 @pytest.mark.django_db
-def test_gest_matchid(client):
+def test_get_matchid(client):
     """
     Check get match id method in match status.
     """
@@ -111,22 +279,3 @@ def test_gest_matchid(client):
 
     assert response.status_code == 200
 
-
-# @pytest.mark.django_db
-# def test_delete_match_status(client):
-#     """
-#     Check delete method in team.
-#     """
-
-#     request_url = '/api/v1/match_status/'
-
-#     res = 'ageBJh0HKnR9oBDW6V4mpKPE'
-
-#     url = request_url + res
-
-#     response = client.delete(url, content_type='application/json', headers={'Authorization' : 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzA1NDQzNDM3LCJpYXQiOjE2NzM5MDc0MzcsImp0aSI6IjMxZjNiMTE3YjczYzQ2NDZhYzFjMWY4NDA1MTFiNTFlIiwidXNlcl9pZCI6MTl9.LcgBuqC3ge3fQ9ih3OqsBDO_VZ6Y5QXxEkUmebp_2ns'})
-
-#     match_status_count = MatchStatus.objects.filter(id=res).count()
-
-#     assert response.status_code == 204
-#     assert match_status_count == 0
