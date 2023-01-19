@@ -7,3 +7,4 @@ pytest-django==4.5.2
 drf_yasg==1.21.4
 ruamel.yaml.clib==0.2.2
 tweepy==4.12.1
+mock==5.0.1
